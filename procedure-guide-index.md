@@ -1,0 +1,54 @@
+# Procedure Guide Index
+
+Extracted from Interventional Radiology Procedure Orders updated 4.15.26.pdf.
+The full raw extraction is in procedure-orders-extracted.txt.
+
+- Adrenal Vein Sampling
+- Arteriogram
+- Bone Biopsy
+- Botox Injection
+- Breast Ablation
+- Catheter Directed Thrombolysis (PE/DVT/frostbite) - SEE ORDER SET
+- Celiac Plexus Block/Neurolysis
+- Chest Tube Placement
+- Cholecystostomy/Biliary Drain Placement/Exchange/Internalization
+- Cholangioscopy with Lithotripsy and Biliary Stone Removal
+- Drainage Catheter Placement/Exchange
+- Fallopian Tube Recanalization
+- Fistulogram
+- Foreign Body Removal
+- Gastrostomy/Gastrojejunostomy/Jejunostomy Tube Placement
+- Gastrostomy/Gastrojejunostomy/Jejunostomy Tube Exchange
+- Genicular Artery Embolization
+- Hemorrhoid Artery Embolization
+- Inferior Vena Cava Filter Placement
+- Inferior Vena Cava Filter Removal
+- Kidney Ablation
+- Kidney Biopsy
+- Kidney Embolization
+- Liver Ablation
+- Liver Biopsy/Fiducial Marker Placement
+- Lung Biopsy/Fiducial Marker Placement
+- Lung Ablation
+- Nephrostomy/Nephroureteral Catheter/JJ Stent Placement/Exchange/Conversion
+- Paracentesis
+- Parathyroid Venous Sampling
+- PICC Placement
+- Port Placement
+- Port Removal
+- Portal Vein Embolization
+- Prostate Artery Embolization
+- Pudendal Angiogram
+- Thoracentesis
+- Thyroid Biopsy
+- Transarterial Chemoembolization (TACE)
+- Transjugular Intrahepatic Portosystemic Shunt Creation (TIPS)
+- Transjugular Intrahepatic Portosystemic Shunt Check/Revision (TIPS)
+- Transvenous Biopsy
+- Tunneled Line Placement/Exchange
+- Uterine Fibroid Embolization (UFE)
+- Venogram
+- Vertebroplasty/Kyphoplasty
+- Varicocele Embolization
+- Y90 Radioembolization Mapping
+- Y90 Radioembolization Therapy

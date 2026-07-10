@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>IR Procedure Navigator</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Procedure list">
+        <div class="brand-block">
+          <p class="eyebrow">Resident reference prototype</p>
+          <h1>IR Procedure Navigator</h1>
+        </div>
+
+        <label class="search-label" for="procedure-search">Search procedures</label>
+        <input id="procedure-search" type="search" placeholder="Find a procedure" autocomplete="off" />
+
+        <nav class="procedure-list" id="procedure-list"></nav>
+
+        <div class="safety-note">
+          <strong>Educational draft.</strong>
+          Use local IR policy, attending preference, and current institutional anticoagulation guidance before acting.
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <section class="procedure-header" aria-live="polite">
+          <div>
+            <p class="eyebrow" id="procedure-category"></p>
+            <h2 id="procedure-title"></h2>
+            <p id="procedure-summary"></p>
+          </div>
+          <div class="review-meta">
+            <div class="bleed-risk-chip" id="bleed-risk-chip" hidden></div>
+            <div class="review-chip" id="review-chip"></div>
+          </div>
+        </section>
+
+        <section class="canvas-layout">
+          <div class="algorithm-surface" aria-label="Procedure algorithm">
+            <div class="toolbar">
+              <button class="ghost-button" id="back-button" type="button">Back</button>
+              <button class="ghost-button" id="reset-button" type="button">Start over</button>
+            </div>
+
+            <div class="breadcrumb" id="breadcrumb"></div>
+            <div class="node-focus" id="node-focus"></div>
+            <div class="bubble-grid" id="bubble-grid"></div>
+          </div>
+
+          <aside class="detail-panel" aria-label="Selected step details">
+            <p class="eyebrow">Selected node</p>
+            <h3 id="detail-title"></h3>
+            <p id="detail-body"></p>
+            <div id="detail-sections"></div>
+          </aside>
+        </section>
+      </main>
+    </div>
+
+    <script src="procedure-data.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
