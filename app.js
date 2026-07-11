@@ -711,11 +711,17 @@ if (window.generatedProcedureData && window.generatedProcedureData.length > 0) {
 
 const hiddenProcedureTitles = new Set([
   "Arteriogram",
+  "Bone Biopsy",
   "Botox Injection",
   "Breast Ablation",
+  "Celiac Plexus Block/Neurolysis",
+  "Cholangioscopy with Lithotripsy and Biliary Stone Removal",
   "Fallopian Tube Recanalization",
   "Genicular Artery Embolization",
+  "Kidney Ablation",
   "Kidney Embolization",
+  "Liver Ablation",
+  "Lung Ablation",
   "Parathyroid Venous Sampling",
   "Portal Vein Embolization",
   "Pudendal Angiogram",
@@ -737,6 +743,7 @@ installCholecystostomyEdits();
 installChestTubeEdits();
 installFistulogramEdits();
 installIvcFilterPlacementEdits();
+installIvcFilterRemovalEdits();
 installKidneyBiopsyEdits();
 installLiverBiopsyEdits();
 installPiccPlacementEdits();
@@ -744,6 +751,8 @@ installLungBiopsyEdits();
 installForeignBodyRemovalEdits();
 installHemorrhoidArteryEmbolizationEdits();
 installPortPlacementEdits();
+installPortRemovalEdits();
+installProstateArteryEmbolizationEdits();
 installModerateSedationLinks();
 installRestartMedicationGuidance();
 
@@ -2699,6 +2708,173 @@ function installIvcFilterPlacementEdits() {
   };
 }
 
+function installIvcFilterRemovalEdits() {
+  const procedure = procedures.find((item) => item.title === "Inferior Vena Cava Filter Removal");
+  if (!procedure) return;
+
+  const id = procedure.id;
+  procedure.bleedRisk = "Low";
+  procedure.summary =
+    "IVC filter removal guidance for retrievable filters that are no longer needed, PE risk has resolved, anticoagulation has resumed, or filter-related complications are present.";
+  procedure.keywords = `${procedure.keywords || ""} ivc filter removal retrieval retrieve anticoagulation resumed filter complication dwell time`;
+  procedure.root = `${id}-root-v2`;
+  procedure.nodes = {
+    [`${id}-root-v2`]: {
+      title: "Inferior Vena Cava Filter Removal",
+      type: "reference",
+      summary: "Review removal indication, filter type and dwell time, anticoagulation, sedation, procedural planning, and post-procedure monitoring.",
+      children: [`${id}-pre-v2`, `${id}-intra-v2`, `${id}-post-v2`, `${id}-review-v2`],
+    },
+    [`${id}-pre-v2`]: {
+      title: "Pre-procedure",
+      type: "action",
+      summary: "Confirm indication, filter type, dwell time, imaging, labs, anticoagulation plan, and moderate sedation readiness.",
+      children: [
+        `${id}-indication-v2`,
+        `${id}-labs-v2`,
+        `${id}-anticoag-v2`,
+        `${id}-sedation-v2`,
+        `${id}-checklist-v2`,
+      ],
+    },
+    [`${id}-indication-v2`]: {
+      title: "Indication",
+      type: "decision",
+      summary: "Remove when the temporary PE risk has resolved, anticoagulation has resumed, the filter is no longer needed, or there is a filter-related complication.",
+      details: {
+        Indications: [
+          "Temporary PE risk resolved.",
+          "Anticoagulation resumed.",
+          "Filter-related complication.",
+          "Retrievable filter no longer needed.",
+        ],
+      },
+    },
+    [`${id}-labs-v2`]: {
+      title: "Labs",
+      type: "decision",
+      summary: "INR < 2-3 and platelets >20k; if complicated removal, CBC and INR within 30 days.",
+      details: {
+        Labs: ["INR < 2-3.", "Platelets >20k."],
+        "If complicated removal": ["CBC and INR within 30 days."],
+      },
+    },
+    [`${id}-anticoag-v2`]: {
+      title: "Anticoagulation",
+      type: "caution",
+      summary: "Low bleeding risk; no routine anticoagulation holding requirement.",
+      details: {
+        Anticoagulation: [
+          "Low bleeding risk.",
+          { text: "Open anticoagulation table", href: "#anticoagulation-table" },
+        ],
+        Hold: [
+          "Warfarin: no holding requirement.",
+          "Heparin: no holding requirement.",
+          "Lovenox: no holding requirement.",
+          "DOACs: no holding requirement.",
+          "Plavix: no holding requirement.",
+          "Aspirin: no holding requirement.",
+        ],
+        "If complicated removal": [
+          "Higher bleeding risk procedure.",
+          "Discuss with attending regarding holding anticoagulation.",
+        ],
+      },
+    },
+    [`${id}-sedation-v2`]: {
+      title: "Sedation",
+      type: "reference",
+      summary: "Moderate sedation.",
+      details: {
+        Sedation: [
+          "Moderate sedation.",
+          { text: "Can tolerate moderate sedation", href: "#moderate-sedation-checklist" },
+        ],
+      },
+    },
+    [`${id}-checklist-v2`]: {
+      title: "Checklist",
+      type: "decision",
+      summary: "Confirm indication, filter type, dwell time, imaging/procedural plan, labs, and NPO status if moderate sedation.",
+      details: {
+        Checklist: [
+          "Confirm indication.",
+          "Review type of filter and dwell time.",
+          "Review imaging and procedural planning.",
+          "Labs are appropriate.",
+          "NPO if moderate sedation.",
+        ],
+      },
+    },
+    [`${id}-intra-v2`]: {
+      title: "Intraprocedure",
+      type: "reference",
+      summary: "To be built as the IVC filter removal technique section.",
+      children: [`${id}-troubleshooting-v2`, `${id}-red-flags-v2`],
+    },
+    [`${id}-post-v2`]: {
+      title: "Post-procedure",
+      type: "action",
+      summary: "Regular diet, routine vitals, Tylenol, discharge after 30 minutes, and venogram AVS.",
+      checklistSections: [
+        {
+          title: "Routine orders",
+          items: [
+            "Regular diet.",
+            "Vital signs per unit routine.",
+            "Tylenol 650 mg PRN.",
+            "Discharge order: 30 min.",
+            "After visit summary: .IRAVSVENOGRAM.",
+          ],
+        },
+      ],
+      details: {
+        "Follow up": ["No specifics."],
+      },
+    },
+    [`${id}-troubleshooting-v2`]: {
+      title: "Troubleshooting",
+      type: "decision",
+      summary: "To be built as common IVC filter removal problems and first checks.",
+      details: {
+        "To build": [
+          "Long dwell time or embedded hook.",
+          "Filter tilt.",
+          "Strut penetration.",
+          "Caval thrombus or occlusion.",
+          "Need for advanced retrieval technique.",
+        ],
+      },
+    },
+    [`${id}-red-flags-v2`]: {
+      title: "Red Flags",
+      type: "caution",
+      summary: "To be built as stop/escalate criteria.",
+      details: {
+        "To build": [
+          "Large thrombus in or around the filter.",
+          "Concern for caval injury.",
+          "Severe filter tilt, fracture, migration, or penetration requiring advanced planning.",
+          "Access-site bleeding or hemodynamic instability.",
+        ],
+      },
+    },
+    [`${id}-review-v2`]: {
+      title: "Needs review",
+      type: "caution",
+      summary: "Confirm local filter removal criteria, low-risk anticoagulation language, and post-removal monitoring.",
+      details: {
+        "Review checklist": [
+          "Confirm filter removal indications with local policy.",
+          "Confirm anticoagulation language with the final table.",
+          "Confirm whether 2-hour bleeding monitoring is standard for all access routes.",
+        ],
+      },
+    },
+  };
+}
+
 function installKidneyBiopsyEdits() {
   const procedure = procedures.find((item) => item.title === "Kidney Biopsy");
   if (!procedure) return;
@@ -3616,9 +3792,9 @@ function installHemorrhoidArteryEmbolizationEdits() {
     [`${id}-labs-v2`]: {
       title: "Labs",
       type: "decision",
-      summary: "INR < 2-3 and platelets >20k.",
+      summary: "CBC and INR within 30 days; INR < 2-3 and platelets >20k.",
       details: {
-        Labs: ["INR < 2-3.", "Platelets >20k."],
+        Labs: ["CBC and INR within 30 days.", "INR < 2-3.", "Platelets >20k."],
       },
     },
     [`${id}-anticoag-v2`]: {
@@ -3936,6 +4112,406 @@ function installPortPlacementEdits() {
           "Confirm anticoagulation language with the final table.",
           "Confirm moderate sedation workflow and discharge timing.",
           "Confirm AVS wording and follow-up owner.",
+        ],
+      },
+    },
+  };
+}
+
+function installPortRemovalEdits() {
+  const procedure = procedures.find((item) => item.title === "Port Removal");
+  if (!procedure) return;
+
+  const id = procedure.id;
+  procedure.bleedRisk = "Low";
+  procedure.summary =
+    "Port removal guidance for completed therapy, ports no longer needed, infection, malfunction, thrombosis, fracture, or migration.";
+  procedure.keywords = `${procedure.keywords || ""} port removal chest port explant infection malfunction thrombosis fracture migration catheter tip culture`;
+  procedure.root = `${id}-root-v2`;
+  procedure.nodes = {
+    [`${id}-root-v2`]: {
+      title: "Port Removal",
+      type: "reference",
+      summary: "Review indication, labs, low-risk anticoagulation, sedation options, infection assessment, and discharge orders.",
+      children: [`${id}-pre-v2`, `${id}-intra-v2`, `${id}-post-v2`, `${id}-review-v2`],
+    },
+    [`${id}-pre-v2`]: {
+      title: "Pre-procedure",
+      type: "action",
+      summary: "Confirm indication, port location, prior imaging, labs, anticoagulation plan, sedation plan, and whether catheter-tip culture is needed.",
+      children: [
+        `${id}-indication-v2`,
+        `${id}-labs-v2`,
+        `${id}-anticoag-v2`,
+        `${id}-sedation-v2`,
+        `${id}-checklist-v2`,
+      ],
+    },
+    [`${id}-indication-v2`]: {
+      title: "Indication",
+      type: "decision",
+      summary: "Remove when therapy is complete, the port is no longer needed, or there is infection, malfunction, thrombosis, fracture, or migration.",
+      details: {
+        Indications: [
+          "Therapy completed.",
+          "Port no longer needed.",
+          "Infection.",
+          "Malfunction.",
+          "Thrombosis, fracture, or migration.",
+        ],
+      },
+    },
+    [`${id}-labs-v2`]: {
+      title: "Labs",
+      type: "decision",
+      summary: "INR < 2-3 and platelets >20k.",
+      details: {
+        Labs: ["Platelets >20,000/uL.", "INR < 2-3."],
+      },
+    },
+    [`${id}-anticoag-v2`]: {
+      title: "Anticoagulation",
+      type: "caution",
+      summary: "Low bleeding risk; no routine anticoagulation holding requirement.",
+      details: {
+        Anticoagulation: [
+          "Low bleeding-risk procedure.",
+          { text: "Open anticoagulation table", href: "#anticoagulation-table" },
+        ],
+        Hold: [
+          "Warfarin: no holding requirement.",
+          "Heparin: no holding requirement.",
+          "Lovenox: no holding requirement.",
+          "DOACs: no holding requirement.",
+          "Plavix: no holding requirement.",
+          "Aspirin: no holding requirement.",
+        ],
+      },
+    },
+    [`${id}-sedation-v2`]: {
+      title: "Sedation",
+      type: "reference",
+      summary: "Local anesthesia; moderate sedation optional; general anesthesia for select pediatric or complex removals.",
+      details: {
+        Sedation: [
+          "Local anesthesia.",
+          "Moderate sedation, optional.",
+          { text: "Can tolerate moderate sedation", href: "#moderate-sedation-checklist" },
+          "General anesthesia for select pediatric or complex removals.",
+        ],
+      },
+    },
+    [`${id}-checklist-v2`]: {
+      title: "Checklist",
+      type: "decision",
+      summary: "Confirm indication, port location/imaging, infection or bacteremia concern, labs, and catheter-tip culture plan.",
+      details: {
+        Checklist: [
+          "Confirm indication.",
+          "Review port location and prior imaging.",
+          "Assess for pocket infection or bacteremia.",
+          "Labs are appropriate.",
+          "Determine whether catheter-tip culture is needed.",
+        ],
+      },
+    },
+    [`${id}-intra-v2`]: {
+      title: "Intraprocedure",
+      type: "reference",
+      summary: "To be built as the port removal technique section.",
+      children: [`${id}-troubleshooting-v2`, `${id}-red-flags-v2`],
+    },
+    [`${id}-post-v2`]: {
+      title: "Post-procedure",
+      type: "action",
+      summary: "Regular diet, routine vitals, pain control, immediate discharge, AVS, and no specific follow-up.",
+      checklistSections: [
+        {
+          title: "Routine orders",
+          items: [
+            "Regular diet.",
+            "Vital signs per routine.",
+            "Tylenol 650 mg PRN.",
+          ],
+        },
+        {
+          title: "Discharge",
+          items: [
+            "Discharge order: immediate.",
+            "After visit summary: .IRAVSPORTREMOVAL.",
+          ],
+        },
+      ],
+      details: {
+        "Follow up": ["No specific follow up."],
+      },
+    },
+    [`${id}-troubleshooting-v2`]: {
+      title: "Troubleshooting",
+      type: "decision",
+      summary: "To be built as common port removal problems and first checks.",
+      details: {
+        "To build": [
+          "Port catheter is adherent or difficult to remove.",
+          "Catheter fracture or retained fragment.",
+          "Pocket infection or purulence.",
+          "Bleeding from pocket or venotomy tract.",
+        ],
+      },
+    },
+    [`${id}-red-flags-v2`]: {
+      title: "Red Flags",
+      type: "caution",
+      summary: "To be built as stop/escalate criteria.",
+      details: {
+        "To build": [
+          "Bacteremia or pocket infection requiring culture and antibiotics coordination.",
+          "Catheter fracture, migration, or retained fragment.",
+          "Uncontrolled pocket bleeding or expanding hematoma.",
+          "Hemodynamic instability or concern for vascular injury.",
+        ],
+      },
+    },
+    [`${id}-review-v2`]: {
+      title: "Needs review",
+      type: "caution",
+      summary: "Confirm low-risk anticoagulation language, culture workflow, and immediate-discharge criteria.",
+      details: {
+        "Review checklist": [
+          "Confirm low bleeding risk classification with local policy.",
+          "Confirm catheter-tip culture indications.",
+          "Confirm immediate-discharge workflow after hemostasis.",
+          "Confirm AVS wording.",
+        ],
+      },
+    },
+  };
+}
+
+function installProstateArteryEmbolizationEdits() {
+  const procedure = procedures.find((item) => item.title === "Prostate Artery Embolization");
+  if (!procedure) return;
+
+  const id = procedure.id;
+  procedure.bleedRisk = "High";
+  procedure.summary =
+    "Prostate artery embolization guidance for medically refractory LUTS from BPH, large prostate or poor surgical candidacy, desire to preserve sexual function, and refractory hematuria of prostatic origin.";
+  procedure.keywords = `${procedure.keywords || ""} prostate artery embolization pae bph luts hematuria prostatic origin psa urinalysis urine culture bactrim ciprofloxacin levofloxacin`;
+  procedure.root = `${id}-root-v2`;
+  procedure.nodes = {
+    [`${id}-root-v2`]: {
+      title: "Prostate Artery Embolization",
+      type: "reference",
+      summary: "Review indication, labs, high-risk anticoagulation, sedation, BPH versus hematuria workflows, post-orders, discharge medications, and follow-up.",
+      children: [`${id}-pre-v2`, `${id}-intra-v2`, `${id}-post-v2`, `${id}-review-v2`],
+    },
+    [`${id}-pre-v2`]: {
+      title: "Pre-procedure",
+      type: "action",
+      summary: "Confirm indication, urology workup when for LUTS/BPH, labs, anticoagulation, sedation/NPO status, antibiotics, IV placement, and imaging approach.",
+      children: [
+        `${id}-indication-v2`,
+        `${id}-labs-v2`,
+        `${id}-anticoag-v2`,
+        `${id}-sedation-v2`,
+        `${id}-checklist-v2`,
+      ],
+    },
+    [`${id}-indication-v2`]: {
+      title: "Indication",
+      type: "decision",
+      summary: "Medically refractory LUTS from BPH, large prostate or poor surgical candidacy, desire to preserve sexual function, or refractory hematuria of prostatic origin.",
+      details: {
+        Indications: [
+          "Medically refractory LUTS from BPH and intolerance of BPH medications.",
+          "Large prostate / poor surgical candidate.",
+          "Desire to preserve sexual function.",
+          "Refractory hematuria of prostatic origin.",
+        ],
+      },
+    },
+    [`${id}-labs-v2`]: {
+      title: "Labs",
+      type: "decision",
+      summary: "Platelets >50k, INR <1.5-1.8, and CBC/INR/BMP within 30 days.",
+      details: {
+        Labs: [
+          "Platelets >50,000/uL.",
+          "INR < 1.5-1.8.",
+          "CBC, INR, and BMP within 30 days.",
+        ],
+      },
+    },
+    [`${id}-anticoag-v2`]: {
+      title: "Anticoagulation",
+      type: "caution",
+      summary: "High bleeding-risk procedure; use institutional anticoagulation table for hold timing.",
+      details: {
+        Anticoagulation: [
+          "High bleeding-risk procedure.",
+          { text: "Open anticoagulation table", href: "#anticoagulation-table" },
+        ],
+        Hold: [
+          "Warfarin: 5 days.",
+          "Heparin: 6-8 hours.",
+          "Lovenox: 24 hours; hold 1 dose prior if prophylactic.",
+          "DOACs: 48 hours.",
+          "Plavix: 5 days.",
+          "Aspirin: 5 days.",
+        ],
+      },
+    },
+    [`${id}-sedation-v2`]: {
+      title: "Sedation",
+      type: "reference",
+      summary: "Moderate sedation; general anesthesia rarely required.",
+      details: {
+        Sedation: [
+          "Moderate sedation.",
+          { text: "Can tolerate moderate sedation", href: "#moderate-sedation-checklist" },
+          "General anesthesia rarely required.",
+        ],
+      },
+    },
+    [`${id}-checklist-v2`]: {
+      title: "Checklist",
+      type: "decision",
+      summary: "Confirm indication and follow either the LUTS/BPH workflow or refractory hematuria workflow.",
+      details: {
+        Checklist: ["Confirm indication."],
+        "If for LUTS from BPH": [
+          "Urology evaluation completed.",
+          "Exclude prostate cancer as appropriate.",
+          "Review prostate size and pelvic arterial anatomy.",
+          "Check PSA and urinalysis/urine culture.",
+          "Labs are appropriate.",
+          "Treat active UTI before procedure.",
+          "NPO for moderate sedation.",
+          "Vital signs per routine.",
+          "Peripheral IV placement, NOT in left arm.",
+        ],
+        "To be ordered in clinic": [
+          "Bactrim 800-160 mg BID x 10 days total starting 2 days prior to procedure.",
+          "OR ciprofloxacin 500 mg BID x 10 days total.",
+          "If oral antibiotic not taken, give 1x dose of IV levofloxacin.",
+        ],
+        "If for refractory hematuria of prostatic origin": [
+          "Review indication.",
+          "Labs are appropriate.",
+          "NPO for moderate sedation.",
+          "Resuscitation per primary team.",
+          "Review imaging and approach.",
+        ],
+      },
+    },
+    [`${id}-intra-v2`]: {
+      title: "Intraprocedure",
+      type: "reference",
+      summary: "To be built as the prostate artery embolization technique section.",
+      children: [`${id}-troubleshooting-v2`, `${id}-red-flags-v2`],
+    },
+    [`${id}-post-v2`]: {
+      title: "Post-procedure",
+      type: "action",
+      summary: "Routine orders, access recovery, monitoring, discharge instructions, discharge medications, and hematuria-specific orders.",
+      checklistSections: [
+        {
+          title: "Routine orders",
+          items: [
+            "Regular diet.",
+            "Tylenol 650 mg PRN.",
+            "Ibuprofen 800 mg Q6 PRN.",
+            "Nursing communication: due to void before discharge.",
+          ],
+        },
+        {
+          title: "Femoral access",
+          items: ["Bedrest 2 hours with closure device; 6 hours with manual compression."],
+        },
+        {
+          title: "Radial access",
+          items: [
+            "Remove radial artery compression device within 2 hours post procedure.",
+            "Activity per JH-HLM mobility goal.",
+          ],
+        },
+        {
+          title: "Monitoring",
+          items: [
+            "Monitor color of access site.",
+            "Vital signs every 15 minutes x 4, then every 30 minutes x 2, then every 1 hour x 4, then every 4 hours; edit to match bedrest.",
+          ],
+        },
+        {
+          title: "Discharge",
+          items: [
+            "Discharge order with medication reconciliation prior: 2-6 hour.",
+            "After visit summary: .IRAVSPROSTATE.",
+          ],
+        },
+        {
+          title: "If for refractory hematuria of prostatic origin",
+          items: [
+            "Regular diet.",
+            "Vital signs per routine.",
+            "Tylenol 650 mg PRN.",
+            "If retention: Foley.",
+          ],
+        },
+        {
+          title: "Discharge medications if procedure for LUTS secondary to BPH",
+          items: [
+            "Continue antibiotic prescribed pre-procedure.",
+            "Ibuprofen 200 mg q6 hrs PRN x 7 days (OTC).",
+            "Oxybutynin PRN for bladder spasm (OTC).",
+            "Omeprazole/esomeprazole 40 mg daily (OTC).",
+            "Docusate 250 mg daily x 7 days (OTC).",
+            "Phenazopyridine 200 mg TID x 3 days (OTC).",
+            "Toradol for pain PRN; not routine.",
+          ],
+        },
+      ],
+      details: {
+        "Follow up": ["1 month clinic visit."],
+      },
+    },
+    [`${id}-troubleshooting-v2`]: {
+      title: "Troubleshooting",
+      type: "decision",
+      summary: "To be built as common prostate artery embolization problems and first checks.",
+      details: {
+        "To build": [
+          "Difficult prostatic artery selection or variant pelvic arterial anatomy.",
+          "Nontarget embolization concern.",
+          "Urinary retention or severe post-embolization symptoms.",
+          "Access-site bleeding.",
+        ],
+      },
+    },
+    [`${id}-red-flags-v2`]: {
+      title: "Red Flags",
+      type: "caution",
+      summary: "To be built as stop/escalate criteria.",
+      details: {
+        "To build": [
+          "Active untreated UTI before elective LUTS/BPH procedure.",
+          "Inadequate prostate cancer exclusion when clinically indicated.",
+          "Unstable hematuria patient requiring resuscitation/escalation.",
+          "Severe pelvic pain, ischemic symptoms, urinary retention, access-site bleeding, or hemodynamic instability.",
+        ],
+      },
+    },
+    [`${id}-review-v2`]: {
+      title: "Needs review",
+      type: "caution",
+      summary: "Confirm antibiotic protocol, discharge medication defaults, access recovery timing, and urology workup requirements.",
+      details: {
+        "Review checklist": [
+          "Confirm high bleeding risk classification and anticoagulation hold timing with local policy.",
+          "Confirm antibiotic selection and timing with local protocol.",
+          "Confirm discharge medication package and which medications require prescriptions.",
+          "Confirm left-arm IV restriction rationale and whether it is universal.",
+          "Confirm follow-up clinic workflow.",
         ],
       },
     },
