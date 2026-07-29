@@ -30,7 +30,9 @@ The full raw extraction is in procedure-orders-extracted.txt.
 - Liver Biopsy/Fiducial Marker Placement
 - Lung Biopsy/Fiducial Marker Placement
 - Lung Ablation
-- Nephrostomy/Nephroureteral Catheter/JJ Stent Placement/Exchange/Conversion
+- Nephrostomy Tube Placement
+- Nephrostomy to Nephroureteral Stent Conversion
+- Nephrostomy Tube Exchange
 - Paracentesis
 - Parathyroid Venous Sampling
 - PICC Placement

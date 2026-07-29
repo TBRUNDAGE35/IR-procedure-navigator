@@ -2189,9 +2189,11 @@ function installNephrostomyEdits() {
   if (!procedure) return;
 
   const id = procedure.id;
+  procedure.title = "Nephrostomy Tube Placement";
   procedure.bleedRisk = "High";
+  procedure.keywords = `${procedure.keywords || ""} nephrostomy tube placement pcn percutaneous nephrostomy urinary decompression obstruction pyonephrosis`;
   procedure.summary =
-    "Nephrostomy, nephroureteral catheter, or JJ stent placement/exchange guidance for urinary decompression, diversion, and high-risk anticoagulation management.";
+    "Nephrostomy tube placement guidance for renal collecting system decompression, pyonephrosis, obstructive AKI, and high-risk anticoagulation management.";
   procedure.root = `${id}-root-v2`;
   procedure.nodes = {
     [`${id}-root-v2`]: {
@@ -2203,7 +2205,7 @@ function installNephrostomyEdits() {
     [`${id}-pre-v2`]: {
       title: "Pre-procedure",
       type: "action",
-      summary: "Confirm indication, labs, high-risk anticoagulation holds, sedation readiness, NPO status, and imaging window.",
+      summary: "Confirm decompression target, infection/obstruction urgency, labs, high-risk anticoagulation holds, sedation readiness, NPO status, and access window.",
       children: [
         `${id}-indication-v2`,
         `${id}-labs-v2`,
@@ -2215,14 +2217,20 @@ function installNephrostomyEdits() {
     [`${id}-indication-v2`]: {
       title: "Indication",
       type: "decision",
-      summary: "Urinary decompression or diversion for infection, obstruction, failed stent, leak, or fistula.",
+      summary: "Percutaneous nephrostomy tube placement for collecting system decompression.",
       details: {
         Indications: [
           "Pyelonephritis with unstable vitals.",
           "Pyonephrosis.",
-          "Renal or ureteral decompression for obstruction with AKI.",
-          "Failed or contraindicated stent.",
-          "Urinary diversion for leak/fistula.",
+          "Renal decompression for obstruction with AKI.",
+          "Failed, contraindicated, or unavailable retrograde ureteral stent.",
+          "Urinary diversion when nephrostomy drainage is the intended endpoint.",
+        ],
+        "Clarify before booking": [
+          "Side and level of obstruction.",
+          "Whether nephrostomy tube drainage is the intended endpoint.",
+          "Evidence of infection, sepsis, pyonephrosis, or obstructive AKI that changes urgency.",
+          "Current ureteral stents, urinary diversion anatomy, and relevant prior urologic surgery.",
         ],
       },
     },
@@ -2267,13 +2275,15 @@ function installNephrostomyEdits() {
     [`${id}-checklist-v2`]: {
       title: "Checklist",
       type: "decision",
-      summary: "Confirm indication, imaging target, labs, anticoagulation holds, access window, NPO status, and sedation tolerance.",
+      summary: "Confirm target side, collecting system access, labs, anticoagulation holds, antibiotics, NPO status, and sedation tolerance.",
       details: {
         Checklist: [
-          "Confirm indication and imaging demonstrates appropriate target collecting system/collection.",
+          "Confirm indication, side, and intended nephrostomy tube endpoint.",
+          "Review CT/US for hydronephrosis, collecting system target, stone/mass level, and safe posterior calyx access.",
           "Labs are appropriate.",
           "Anticoagulation appropriately held.",
-          "Appropriate imaging window.",
+          "Appropriate percutaneous access window.",
+          "Antibiotics are ordered when infected/obstructed system, pyonephrosis, or sepsis is suspected.",
           "Patient is NPO if moderate sedation.",
           { text: "Can tolerate moderate sedation", href: "#moderate-sedation-checklist" },
         ],
@@ -2282,13 +2292,13 @@ function installNephrostomyEdits() {
     [`${id}-intra-v2`]: {
       title: "Intraprocedure",
       type: "reference",
-      summary: "To be built as the nephrostomy/nephroureteral catheter/JJ stent technique section.",
+      summary: "To be built as the nephrostomy tube placement technique section.",
       children: [`${id}-troubleshooting-v2`, `${id}-red-flags-v2`],
     },
     [`${id}-post-v2`]: {
       title: "Post-procedure",
       type: "action",
-      summary: "Diet, vitals, pain control, anticoagulation restart, outpatient exchange discharge, AVS, and follow-up.",
+      summary: "Diet, vitals, pain control, urine output/drain care, flush orders, anticoagulation restart, AVS, and follow-up.",
       checklistSections: [
         {
           title: "Routine orders",
@@ -2311,25 +2321,31 @@ function installNephrostomyEdits() {
           ],
         },
         {
-          title: "If outpatient exchange",
+          title: "If outpatient",
           items: [
             "Discharge order with medication reconciliation.",
-            "After visit summary: .IRAVSPCN1 or .IRAVSPCNEXCHANGE or .IRAVSPCNU or .IRAVSPCNUEXCHANGE or .IRAVSJJSTENTPLACEMENT.",
+            "After visit summary: .IRAVSPCN1.",
           ],
         },
       ],
       details: {
-        "Follow up": ["Drain check in 3 months."],
+        "Drain care": [
+          "Confirm tube is to gravity drainage unless the operator gives a different plan.",
+          "Track output, urine color, fever, flank pain, and ability to flush before discharge.",
+          "Expect transient hematuria; escalate for heavy persistent bleeding, clots with obstruction, hypotension, or falling hemoglobin.",
+        ],
+        "Follow up": ["Routine exchange/check in 3 months unless infection, malfunction, or urology plan requires earlier follow-up."],
       },
     },
     [`${id}-troubleshooting-v2`]: {
       title: "Troubleshooting",
       type: "decision",
-      summary: "To be built as common nephrostomy/nephroureteral catheter problems and first checks.",
+      summary: "Common nephrostomy tube placement problems and first checks.",
       details: {
-        "To build": [
+        Troubleshooting: [
           "No safe access window.",
           "Difficult collecting system access.",
+          "Nondilated collecting system.",
           "Bloody urine.",
           "Tube obstruction.",
           "Tube dislodgement or leakage.",
@@ -2339,13 +2355,14 @@ function installNephrostomyEdits() {
     [`${id}-red-flags-v2`]: {
       title: "Red Flags",
       type: "caution",
-      summary: "To be built as stop/escalate criteria.",
+      summary: "Findings that should pause the case or prompt urgent escalation.",
       details: {
-        "To build": [
+        "Escalate if": [
           "Sepsis or unstable vitals.",
           "No safe access window.",
           "Uncorrected high-risk anticoagulation issue.",
           "Concern for vascular, bowel, pleural, or solid-organ injury.",
+          "Heavy hematuria, clot obstruction, or hemodynamic change after access.",
           "Clinical deterioration after decompression.",
         ],
       },
@@ -2364,6 +2381,80 @@ function installNephrostomyEdits() {
       },
     },
   };
+
+  const addFutureNephrostomyProcedure = ({ variantId, title, keywords, summary }) => {
+    const variant = JSON.parse(JSON.stringify(procedure));
+    variant.id = variantId;
+    variant.title = title;
+    variant.keywords = `${procedure.keywords || ""} ${keywords}`;
+    variant.summary = summary;
+    variant.lastReviewed = procedure.lastReviewed;
+
+    const rootNode = variant.nodes[variant.root];
+    rootNode.title = title;
+    rootNode.summary = "Future procedure-specific content placeholder.";
+
+    const indicationNode = variant.nodes[`${id}-indication-v2`];
+    indicationNode.summary = "Future edit: add procedure-specific indications and booking clarifications.";
+    indicationNode.details = {
+      "Needs procedure-specific edit": [
+        "Add indications, contraindications, and escalation triggers during faculty review.",
+      ],
+    };
+
+    const checklistNode = variant.nodes[`${id}-checklist-v2`];
+    checklistNode.summary = "Future edit: add procedure-specific pre-procedure checklist.";
+    checklistNode.details = {
+      Checklist: [
+        "Confirm indication.",
+        "Review imaging and current tube/stent details.",
+        "Confirm labs and anticoagulation plan with local policy.",
+        "Confirm sedation/NPO requirements.",
+      ],
+    };
+
+    variant.nodes[`${id}-intra-v2`].summary = "Future edit: add procedure-specific technique notes.";
+    variant.nodes[`${id}-troubleshooting-v2`].summary = "Future edit: add procedure-specific troubleshooting.";
+    variant.nodes[`${id}-troubleshooting-v2`].details = {
+      "Needs procedure-specific edit": ["Add common problems and first checks."],
+    };
+    variant.nodes[`${id}-red-flags-v2`].summary = "Future edit: add procedure-specific stop/escalate criteria.";
+    variant.nodes[`${id}-red-flags-v2`].details = {
+      "Needs procedure-specific edit": ["Add red flags and escalation criteria."],
+    };
+    variant.nodes[`${id}-post-v2`].summary = "Future edit: add procedure-specific post-procedure orders, AVS, and follow-up.";
+    variant.nodes[`${id}-post-v2`].checklistSections = [
+      {
+        title: "Routine orders",
+        items: ["Future edit: add procedure-specific post-procedure orders."],
+      },
+    ];
+    variant.nodes[`${id}-post-v2`].details = {
+      "Follow up": ["Future edit: add follow-up timing and ownership."],
+    };
+    variant.nodes[`${id}-review-v2`].details["Review checklist"] = [
+      "Add procedure-specific pre-procedure guidance.",
+      "Add procedure-specific post-procedure guidance.",
+      "Confirm anticoagulation and lab thresholds with local policy.",
+      "Confirm AVS and follow-up workflow.",
+    ];
+
+    procedures.push(variant);
+  };
+
+  addFutureNephrostomyProcedure({
+    variantId: "nephrostomy-to-nephroureteral-stent-conversion",
+    title: "Nephrostomy to Nephroureteral Stent Conversion",
+    keywords: "nephrostomy to nephroureteral stent conversion exchange npu nephroureteral catheter internalization ureteral obstruction",
+    summary: "Future edit placeholder for conversion from an existing nephrostomy tube to nephroureteral stent/catheter drainage.",
+  });
+
+  addFutureNephrostomyProcedure({
+    variantId: "nephrostomy-tube-exchange",
+    title: "Nephrostomy Tube Exchange",
+    keywords: "nephrostomy tube exchange pcn exchange drain check catheter malfunction routine exchange",
+    summary: "Future edit placeholder for routine or problem-driven nephrostomy tube exchange.",
+  });
 }
 
 function installCholecystostomyEdits() {
