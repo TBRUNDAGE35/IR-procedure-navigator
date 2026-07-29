@@ -730,6 +730,19 @@ const hiddenProcedureTitles = new Set([
   "MELD Score Reference",
   "Moderate Sedation Checklist",
 ]);
+
+const anticoagulationTableLink = { text: "Open anticoagulation table", href: "#anticoagulation-table" };
+
+const highRiskAnticoagRestartItems = [
+  "Warfarin: 24 hours postop.",
+  "Heparin: 6-8 hours postop.",
+  "Lovenox: 12 hours postop.",
+  "DOACs: 24 hours postop.",
+  "Plavix: 6 hours postop (75 mg) or 24 hours postop (300-600 mg).",
+  "Aspirin: 24 hours postop.",
+  "Confirm no procedure-related bleeding concern and defer to local policy/attending preference.",
+];
+
 installReferencePages();
 
 installGastrostomyTubeHeaderPrototype();
@@ -875,6 +888,76 @@ function installReferencePages() {
         summary: "Future calculator inputs: bilirubin, INR, creatinine, sodium, and albumin.",
         details: {
           "Inputs to add": ["Bilirubin.", "INR.", "Creatinine.", "Sodium.", "Albumin."],
+        },
+      },
+    },
+  });
+
+  procedures.push({
+    id: "anticoagulation-table",
+    title: "Anticoagulation Table",
+    category: "Reference table",
+    keywords: "anticoagulation anticoagulant antiplatelet hold resume restart high bleeding risk low bleeding risk warfarin heparin lovenox doac plavix aspirin",
+    summary: "Draft medication hold and restart reference for procedure bleeding-risk planning.",
+    lastReviewed: "Draft reference page, July 2026",
+    root: "anticoagulation-table-root",
+    nodes: {
+      "anticoagulation-table-root": {
+        title: "Anticoagulation Table",
+        type: "reference",
+        summary: "Use local policy and attending preference; this page collects the app's draft high-risk restart timing in one place.",
+        children: [
+          "anticoagulation-table-high-risk-hold",
+          "anticoagulation-table-high-risk-restart",
+          "anticoagulation-table-low-risk",
+          "anticoagulation-table-review",
+        ],
+      },
+      "anticoagulation-table-high-risk-hold": {
+        title: "High-risk hold",
+        type: "caution",
+        summary: "Draft hold timing used by high-bleeding-risk procedure nodes.",
+        details: {
+          "High bleeding risk hold": [
+            "Warfarin: 5 days.",
+            "Heparin: 6-8 hours.",
+            "Lovenox: 24 hours; hold 1 dose prior if prophylactic.",
+            "DOACs: 48 hours.",
+            "Plavix: 5 days.",
+            "Aspirin: 5 days.",
+          ],
+        },
+      },
+      "anticoagulation-table-high-risk-restart": {
+        title: "High-risk restart",
+        type: "decision",
+        summary: "Resume only after hemostasis is confirmed and there is no procedure-related bleeding concern.",
+        details: {
+          "High bleeding risk restart": highRiskAnticoagRestartItems,
+        },
+      },
+      "anticoagulation-table-low-risk": {
+        title: "Low-risk procedures",
+        type: "reference",
+        summary: "Low-risk procedure nodes generally do not require anticoagulation holds.",
+        details: {
+          "Low bleeding risk": [
+            "No routine anticoagulation hold requirement for uncomplicated low-risk procedures.",
+            "If anticoagulation was held anyway, resume per local policy once hemostasis is confirmed.",
+            "Document who owns restart if there is active bleeding, access-site concern, or patient-specific thrombosis risk.",
+          ],
+        },
+      },
+      "anticoagulation-table-review": {
+        title: "Needs review",
+        type: "caution",
+        summary: "Confirm this draft table against the current institutional anticoagulation policy.",
+        details: {
+          "Review checklist": [
+            "Confirm hold and restart times by medication, dose, renal function, and procedural bleeding risk.",
+            "Confirm whether aspirin should be held for each high-risk procedure at your institution.",
+            "Confirm restart ownership for bridging, high thrombosis risk, active bleeding, or difficult hemostasis.",
+          ],
         },
       },
     },
@@ -2886,6 +2969,9 @@ function installFistulogramEdits() {
           "DOACs: no holding requirement.",
           "Plavix: no holding requirement.",
           "Aspirin: no holding requirement.",
+        ],
+        Caveat: [
+          "Consider holding only if significant intervention is anticipated—large-bore access, thrombectomy/thrombolysis—or the patient has additional bleeding risks.",
         ],
       },
     },
@@ -5535,7 +5621,24 @@ function installModerateSedationLinks() {
 }
 
 function installRestartMedicationGuidance() {
+  const hasGuidanceText = (node, text) => JSON.stringify(node).toLowerCase().includes(text.toLowerCase());
+
   procedures.forEach((procedure) => {
+    if (procedure.bleedRisk === "High") {
+      Object.values(procedure.nodes).forEach((node) => {
+        if (node.title !== "Post-procedure" || hasGuidanceText(node, "Anticoagulation to resume")) return;
+
+        if (!Array.isArray(node.checklistSections)) {
+          node.checklistSections = [];
+        }
+
+        node.checklistSections.push({
+          title: "Anticoagulation to resume",
+          items: highRiskAnticoagRestartItems,
+        });
+      });
+    }
+
     Object.values(procedure.nodes).forEach((node) => {
       if (node.title !== "Restart meds") return;
 
@@ -5552,14 +5655,8 @@ function installRestartMedicationGuidance() {
         node.summary = "Restart anticoagulation using high-bleeding-risk guidance once hemostasis is confirmed.";
         node.details = {
           "High bleeding risk restart": [
-            { text: "Open anticoagulation table", href: "#anticoagulation-table" },
-            "Warfarin: 24 hours postop.",
-            "Heparin: 6-8 hours postop.",
-            "Lovenox: 12 hours postop.",
-            "DOACs: 24 hours postop.",
-            "Plavix: 6 hours postop (75 mg) or 24 hours postop (300-600 mg).",
-            "Aspirin: 24 hours postop.",
-            "Confirm no procedure-related bleeding concern and defer to local policy/attending preference.",
+            anticoagulationTableLink,
+            ...highRiskAnticoagRestartItems,
           ],
         };
         return;
@@ -5569,7 +5666,7 @@ function installRestartMedicationGuidance() {
         node.summary = "For low-bleeding-risk procedures, anticoagulation usually does not need to be held; resume if held once hemostasis is confirmed.";
         node.details = {
           "Low bleeding risk restart": [
-            { text: "Open anticoagulation table", href: "#anticoagulation-table" },
+            anticoagulationTableLink,
             "No routine anticoagulation hold requirement for uncomplicated low-risk procedures.",
             "If anticoagulation was held anyway, resume per local policy once hemostasis is confirmed.",
             "Document who owns restart if there is active bleeding, access-site concern, or patient-specific thrombosis risk.",
@@ -5820,6 +5917,14 @@ function appendListItemContent(container, item) {
     const link = document.createElement("a");
     link.href = item.href;
     link.textContent = item.text || item.href;
+    if (item.href === "#anticoagulation-table") {
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        openProcedure("anticoagulation-table");
+      });
+      container.append(link);
+      return;
+    }
     if (item.href === "#moderate-sedation-checklist") {
       link.addEventListener("click", (event) => {
         event.preventDefault();
