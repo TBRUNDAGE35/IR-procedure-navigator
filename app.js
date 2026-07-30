@@ -743,6 +743,15 @@ const highRiskAnticoagRestartItems = [
   "Confirm no procedure-related bleeding concern and defer to local policy/attending preference.",
 ];
 
+const highRiskAnticoagHoldItems = [
+  "Warfarin: 5 days.",
+  "Heparin: 6-8 hours.",
+  "Lovenox: 24 hours; hold 1 dose prior if prophylactic.",
+  "DOACs: 48 hours.",
+  "Plavix: 5 days.",
+  "Aspirin: 5 days.",
+];
+
 installReferencePages();
 
 installGastrostomyTubeHeaderPrototype();
@@ -762,6 +771,7 @@ installIvcFilterRemovalEdits();
 installKidneyBiopsyEdits();
 installLiverBiopsyEdits();
 installPiccPlacementEdits();
+installTunneledLineEdits();
 installLungBiopsyEdits();
 installForeignBodyRemovalEdits();
 installHemorrhoidArteryEmbolizationEdits();
@@ -771,8 +781,12 @@ installProstateArteryEmbolizationEdits();
 installTipsCreationEdits();
 installTipsRevisionEdits();
 installThyroidBiopsyEdits();
+installNerveBlockPlaceholder();
+installUterineArteryEmbolizationPlaceholder();
+installUfeEdits();
 installModerateSedationLinks();
 installRestartMedicationGuidance();
+installPreProcedureLieFlatChecks();
 
 const visibleProcedures = procedures.filter((procedure) => !hiddenProcedureTitles.has(procedure.title));
 
@@ -4004,6 +4018,181 @@ function installPiccPlacementEdits() {
   };
 }
 
+function installTunneledLineEdits() {
+  const procedure = procedures.find((item) => item.title === "Tunneled Line Placement/Exchange");
+  if (!procedure) return;
+
+  const id = procedure.id;
+  procedure.bleedRisk = "Low";
+  procedure.summary =
+    "Tunneled line placement and exchange guidance for long-term central access, tunneled dialysis/apheresis access, poor peripheral access, catheter dysfunction, malposition, damage, or size/type conversion.";
+  procedure.keywords = `${procedure.keywords || ""} tunneled line tunneled catheter tdc permcath dialysis catheter apheresis antibiotics chemotherapy tpn transfusions fibrin sheath catheter exchange malposition bacteremia line infection`;
+  procedure.root = `${id}-root-v2`;
+  procedure.nodes = {
+    [`${id}-root-v2`]: {
+      title: "Tunneled Line Placement/Exchange",
+      type: "reference",
+      summary: "Review indication, placement versus exchange pathway, labs, low-risk anticoagulation guidance, sedation plan, post-orders, and review items.",
+      children: [`${id}-pre-v2`, `${id}-intra-v2`, `${id}-post-v2`, `${id}-review-v2`],
+    },
+    [`${id}-pre-v2`]: {
+      title: "Pre-procedure",
+      type: "action",
+      summary: "Confirm indication, placement versus exchange plan, infection status, labs, anticoagulation, sedation plan, and ability to lie flat.",
+      children: [
+        `${id}-indication-v2`,
+        `${id}-labs-v2`,
+        `${id}-anticoag-v2`,
+        `${id}-sedation-v2`,
+        `${id}-checklist-v2`,
+      ],
+    },
+    [`${id}-indication-v2`]: {
+      title: "Indication",
+      type: "decision",
+      summary: "Long-term central access, dialysis/apheresis access, poor peripheral access, or exchange for dysfunction, malposition, damage, leakage, or type conversion.",
+      details: {
+        Indications: [
+          "Long-term central access for antibiotics, chemotherapy, TPN, transfusions, or frequent infusions.",
+          "Hemodialysis or apheresis when permanent access is unavailable, immature, or malfunctioning.",
+          "Poor peripheral access or when a PICC is unsuitable.",
+          "Exchange for catheter dysfunction, occlusion/fibrin sheath, damage, or leakage.",
+          "Exchange for malposition, retraction, partial dislodgment, or catheter-size/type conversion.",
+        ],
+        "Do not": [
+          "DO NOT exchange over wire if bacteremia/line infection.",
+        ],
+      },
+    },
+    [`${id}-labs-v2`]: {
+      title: "Labs",
+      type: "decision",
+      summary: "INR < 2-3, platelets >20k, and potassium if TDC placement.",
+      details: {
+        Labs: [
+          "INR < 2-3.",
+          "Platelets >20k.",
+          "Potassium if TDC placement.",
+        ],
+      },
+    },
+    [`${id}-anticoag-v2`]: {
+      title: "Anticoagulation",
+      type: "caution",
+      summary: "Low bleeding risk; use the anticoagulation table for medication-specific guidance.",
+      details: {
+        Anticoagulation: [
+          "Low bleeding risk.",
+          { text: "Open anticoagulation table", href: "#anticoagulation-table" },
+        ],
+      },
+    },
+    [`${id}-sedation-v2`]: {
+      title: "Sedation",
+      type: "reference",
+      summary: "Local anesthesia; moderate sedation for special situations.",
+      details: {
+        Sedation: [
+          "Local.",
+          "Moderate sedation for special situations.",
+          { text: "Can tolerate moderate sedation", href: "#moderate-sedation-checklist" },
+        ],
+      },
+    },
+    [`${id}-checklist-v2`]: {
+      title: "Checklist",
+      type: "decision",
+      summary: "Use the placement pathway for new lines and the replacement pathway for exchanges.",
+      details: {
+        "For placement": [
+          "Confirm indication, expected duration, and required catheter: dialysis versus small-bore; single versus double lumen.",
+          "Determine new placement.",
+          "Review imaging; assess for central venous stenosis/thrombosis and implanted hardware.",
+          "Confirm no bacteremia/no active infection.",
+          "Labs are appropriate.",
+          "Confirm sedation plan and that patient can lie flat.",
+        ],
+        "For replacement": [
+          "Document the reason for exchange.",
+          "For dysfunction: check for kink/retraction, inability to aspirate versus flush, prior alteplase attempt, and suspected fibrin sheath.",
+          "Assess for fever, bacteremia, blood cultures, exit-site erythema, drainage, or tunnel tenderness; avoid over-wire exchange with tunnel infection.",
+          "Labs are appropriate.",
+          "Confirm sedation plan and that patient can lie flat.",
+        ],
+      },
+    },
+    [`${id}-intra-v2`]: {
+      title: "Intraprocedure",
+      type: "reference",
+      summary: "Future technique section for tunneled line placement/exchange.",
+      children: [`${id}-troubleshooting-v2`, `${id}-red-flags-v2`],
+    },
+    [`${id}-post-v2`]: {
+      title: "Post-procedure",
+      type: "action",
+      summary: "Regular diet, routine vitals, pain control, outpatient discharge timing, and AVS.",
+      checklistSections: [
+        {
+          title: "Routine orders",
+          items: [
+            "Regular diet.",
+            "Vital signs - per unit routine.",
+            "Tylenol 650 mg PRN.",
+          ],
+        },
+        {
+          title: "If outpatient",
+          items: [
+            "Discharge order - 30 min.",
+            ".IRAVSTUNNELEDCATHPLACEMENT1.",
+          ],
+        },
+      ],
+    },
+    [`${id}-troubleshooting-v2`]: {
+      title: "Troubleshooting",
+      type: "decision",
+      summary: "Future edit: add common tunneled line placement/exchange problems and first checks.",
+      details: {
+        "To build": [
+          "No suitable access site.",
+          "Central venous stenosis or thrombosis.",
+          "Difficult aspiration/flush after placement or exchange.",
+          "Suspected fibrin sheath.",
+          "Malposition or retraction.",
+        ],
+      },
+    },
+    [`${id}-red-flags-v2`]: {
+      title: "Red Flags",
+      type: "caution",
+      summary: "Findings that should pause over-wire exchange or prompt escalation.",
+      details: {
+        "Escalate if": [
+          "Bacteremia or line infection: do not exchange over wire.",
+          "Tunnel infection, exit-site drainage, tunnel tenderness, or uncontrolled active infection.",
+          "No safe access site or suspected central venous occlusion.",
+          "Arterial puncture, expanding hematoma, pneumothorax symptoms, arrhythmia, or hemodynamic instability.",
+        ],
+      },
+    },
+    [`${id}-review-v2`]: {
+      title: "Needs review",
+      type: "caution",
+      summary: "Confirm local tunneled line exchange infection rules, sedation workflow, potassium threshold, AVS wording, and follow-up ownership.",
+      details: {
+        "Review checklist": [
+          "Confirm low bleeding risk classification with local policy.",
+          "Confirm anticoagulation language with the final table.",
+          "Confirm potassium threshold for TDC placement.",
+          "Confirm when exchange over wire is prohibited for bacteremia/line infection.",
+          "Confirm tunneled catheter AVS and follow-up workflow.",
+        ],
+      },
+    },
+  };
+}
+
 function installLungBiopsyEdits() {
   const procedure = procedures.find((item) => item.title === "Lung Biopsy/Fiducial Marker Placement");
   if (!procedure) return;
@@ -5233,7 +5422,7 @@ function installTipsCreationEdits() {
         Checklist: [
           "Confirm indication.",
           "Review imaging: portal/hepatic vein patency, anatomy, and access.",
-          "Review MELD score/Child-Pugh class.",
+          { text: "Review MELD score/Child-Pugh class.", procedureId: "meld-score-reference" },
           "Review echocardiogram.",
           "Review BUN.",
           "Consent for possible embolization.",
@@ -5264,21 +5453,21 @@ function installTipsCreationEdits() {
             "Admit to inpatient.",
             "Regular diet.",
             "Tylenol 650 mg PRN; 2 g daily max if patient has cirrhosis.",
+            "Vital signs every 15 minutes x 4, then every 30 minutes x 2.",
           ],
         },
         {
           title: "IJ access",
-          items: ["Elevate HOB >45 degrees x 1 hour."],
+          items: [
+            "Elevate HOB >45 degrees x 1 hour.",
+            "Monitor color of access site.",
+          ],
         },
         {
           title: "Femoral access",
-          items: ["Bedrest for 2 hours with leg flat."],
-        },
-        {
-          title: "Monitoring",
           items: [
+            "Bedrest for 2 hours with leg flat.",
             "Monitor color of access site.",
-            "Vital signs every 15 minutes x 4, then every 30 minutes x 2.",
           ],
         },
         {
@@ -5685,6 +5874,376 @@ function installThyroidBiopsyEdits() {
   };
 }
 
+function installNerveBlockPlaceholder() {
+  procedures.push({
+    id: "nerve-block",
+    title: "Nerve Block",
+    category: "Pain control",
+    keywords: "nerve block hypogastric nerve block superior hypogastric block pain control pelvic pain ufe",
+    summary: "Future edit placeholder for nerve block planning, technique, medications, monitoring, and follow-up.",
+    lastReviewed: "Future edit placeholder, July 2026",
+    root: "nerve-block-root",
+    nodes: {
+      "nerve-block-root": {
+        title: "Nerve Block",
+        type: "reference",
+        summary: "Future procedure-specific content placeholder.",
+        children: ["nerve-block-pre", "nerve-block-intra", "nerve-block-post", "nerve-block-review"],
+      },
+      "nerve-block-pre": {
+        title: "Pre-procedure",
+        type: "action",
+        summary: "Future edit: add indication, anticoagulation, medication, sedation, and consent planning.",
+      },
+      "nerve-block-intra": {
+        title: "Intraprocedure",
+        type: "reference",
+        summary: "Future edit: add approach, medications, imaging guidance, and troubleshooting.",
+      },
+      "nerve-block-post": {
+        title: "Post-procedure",
+        type: "action",
+        summary: "Future edit: add monitoring, expected effect, complications, and follow-up.",
+      },
+      "nerve-block-review": {
+        title: "Needs review",
+        type: "caution",
+        summary: "Build and review this procedure-specific pathway before clinical use.",
+      },
+    },
+  });
+}
+
+function installUterineArteryEmbolizationPlaceholder() {
+  procedures.push({
+    id: "uterine-artery-embolization",
+    title: "Uterine Artery Embolization",
+    category: "Embolization",
+    keywords: "uterine artery embolization UAE uterine bleeding postpartum hemorrhage pelvic bleeding gynecologic embolization",
+    summary: "Future edit placeholder for uterine artery embolization indications, pre-procedure planning, post-procedure orders, and follow-up.",
+    lastReviewed: "Future edit placeholder, July 2026",
+    root: "uterine-artery-embolization-root",
+    nodes: {
+      "uterine-artery-embolization-root": {
+        title: "Uterine Artery Embolization",
+        type: "reference",
+        summary: "Future procedure-specific content placeholder.",
+        children: [
+          "uterine-artery-embolization-pre",
+          "uterine-artery-embolization-intra",
+          "uterine-artery-embolization-post",
+          "uterine-artery-embolization-review",
+        ],
+      },
+      "uterine-artery-embolization-pre": {
+        title: "Pre-procedure",
+        type: "action",
+        summary: "Future edit: add indications, labs, anticoagulation, imaging, pregnancy/gynecology context, and sedation planning.",
+        details: {
+          "Needs procedure-specific edit": [
+            "Add indication-specific pathways before clinical use.",
+          ],
+        },
+      },
+      "uterine-artery-embolization-intra": {
+        title: "Intraprocedure",
+        type: "reference",
+        summary: "Future edit: add approach, embolic selection, endpoints, and troubleshooting.",
+      },
+      "uterine-artery-embolization-post": {
+        title: "Post-procedure",
+        type: "action",
+        summary: "Future edit: add post-procedure orders, pain/nausea plan, discharge criteria, AVS, and follow-up.",
+      },
+      "uterine-artery-embolization-review": {
+        title: "Needs review",
+        type: "caution",
+        summary: "Build and review this procedure-specific pathway before clinical use.",
+        details: {
+          "Review checklist": [
+            "Add indication-specific pre-procedure guidance.",
+            "Add post-procedure medication and monitoring orders.",
+            "Confirm anticoagulation and lab thresholds with local policy.",
+            "Confirm gynecology/OB coordination and follow-up workflow.",
+          ],
+        },
+      },
+    },
+  });
+}
+
+function installUfeEdits() {
+  const procedure = procedures.find((item) => item.title === "Uterine Fibroid Embolization (UFE)");
+  if (!procedure) return;
+
+  const id = procedure.id;
+  procedure.bleedRisk = "High";
+  procedure.summary =
+    "Uterine fibroid embolization guidance for fibroid-related bleeding, anemia, bulk symptoms, pelvic pain, refractory symptoms, fertility-preservation goals, or non-surgical candidates.";
+  procedure.keywords = `${procedure.keywords || ""} uterine fibroid embolization ufe fibroids menorrhagia heavy menstrual bleeding anemia bulk symptoms dysmenorrhea dyspareunia hypogastric nerve block pca`;
+  procedure.root = `${id}-root-v2`;
+  procedure.nodes = {
+    [`${id}-root-v2`]: {
+      title: "Uterine Fibroid Embolization (UFE)",
+      type: "reference",
+      summary: "Review indication, labs, high-risk anticoagulation holds, sedation/nerve block plan, pre-medication orders, arrival orders, post-op orders, discharge/admission pathway, and follow-up.",
+      children: [`${id}-pre-v2`, `${id}-intra-v2`, `${id}-post-v2`, `${id}-review-v2`],
+    },
+    [`${id}-pre-v2`]: {
+      title: "Pre-procedure",
+      type: "action",
+      summary: "Confirm fibroid-related symptoms, prior interventions, imaging, pregnancy exclusion, labs, high-risk anticoagulation holds, sedation/nerve block plan, and pre-procedure meds.",
+      children: [
+        `${id}-indication-v2`,
+        `${id}-labs-v2`,
+        `${id}-anticoag-v2`,
+        `${id}-sedation-v2`,
+        `${id}-checklist-v2`,
+        `${id}-pre-meds-v2`,
+        `${id}-arrival-orders-v2`,
+      ],
+    },
+    [`${id}-indication-v2`]: {
+      title: "Indication",
+      type: "decision",
+      summary: "Symptomatic uterine fibroids with bleeding, anemia, bulk symptoms, pain, refractory symptoms, fertility-preservation goals, or non-surgical candidacy.",
+      details: {
+        Indications: [
+          "Heavy menstrual bleeding causing anemia or impaired quality of life.",
+          "Bulk symptoms: pressure, fullness, urinary frequency, constipation, hydronephrosis.",
+          "Dysmenorrhea, pelvic pain, dyspareunia.",
+          "Above symptoms refractory to conservative therapy.",
+          "Above symptoms and desire to preserve fertility or non-surgical candidate.",
+        ],
+      },
+    },
+    [`${id}-labs-v2`]: {
+      title: "Labs",
+      type: "decision",
+      summary: "Needed within 30 days: CBC, creatinine/GFR, INR <1.5-1.8, and platelets >50k.",
+      details: {
+        "Labs within 30 days": [
+          "CBC.",
+          "Creatinine/GFR.",
+          "INR < 1.5-1.8.",
+          "Platelets >50k.",
+        ],
+      },
+    },
+    [`${id}-anticoag-v2`]: {
+      title: "Anticoagulation",
+      type: "caution",
+      summary: "High bleeding risk; hold anticoagulants/antiplatelets per policy.",
+      details: {
+        Anticoagulation: [
+          "High bleeding risk.",
+          { text: "Open anticoagulation table", href: "#anticoagulation-table" },
+        ],
+        Hold: highRiskAnticoagHoldItems,
+      },
+    },
+    [`${id}-sedation-v2`]: {
+      title: "Sedation",
+      type: "reference",
+      summary: "Usually moderate sedation with hypogastric nerve block; rarely general anesthesia.",
+      details: {
+        Sedation: [
+          "Usually moderate sedation.",
+          { text: "Can tolerate moderate sedation", href: "#moderate-sedation-checklist" },
+          { text: "Hypogastric nerve block", procedureId: "nerve-block" },
+          "Rarely done general.",
+        ],
+      },
+    },
+    [`${id}-checklist-v2`]: {
+      title: "Checklist",
+      type: "decision",
+      summary: "Confirm indication, imaging, pregnancy exclusion, labs, infection/malignancy screen, goals, sedation plan, and embolic agent.",
+      details: {
+        Checklist: [
+          "Confirm indication and review prior interventions.",
+          "Review imaging on number, size, location of fibroids.",
+          "EXCLUDE pregnancy.",
+          "Labs are appropriate.",
+          "No active infection or malignancy.",
+          "Ensure patient goals align with procedure.",
+          "Confirm sedation plan, patient can lie flat.",
+          "Embolic agent.",
+        ],
+      },
+    },
+    [`${id}-pre-meds-v2`]: {
+      title: "Pre-procedure meds",
+      type: "action",
+      summary: "Start 1 day prior to procedure; to be ordered in clinic.",
+      checklist: [
+        "Naproxen 500 mg BID (Disp 16).",
+        "Omeprazole 20 mg PO daily (Disp 8).",
+        "Hydroxyzine 25 mg PO nightly (Disp 8).",
+        "Colace 100 mg PO BID (Disp 16).",
+        "Tylenol 1000 mg PO Q6H begin at night (Disp 58).",
+        "Zofran 4 mg PO Q6H PRN for nausea post (Disp 8).",
+      ],
+    },
+    [`${id}-arrival-orders-v2`]: {
+      title: "Arrival orders",
+      type: "action",
+      summary: "Orders when patient arrives.",
+      checklistSections: [
+        {
+          title: "When patient arrives",
+          items: [
+            "SDC/Outpatient with Discharge vs Bedded Outpatient.",
+            "NPO (moderate sedation).",
+            "Pulse checks.",
+            "Vital signs - Per unit routine.",
+            "Peripheral Line Placement - No IV in LEFT arm.",
+            "Glucose Point of Care.",
+            "Cefazolin (Ancef) 2g if <120kg, 3g if >120 kg.",
+            "Dexamethasone 8 mg IV (HOLD FOR Dr. KIM).",
+            "Toradol 30 mg once IM.",
+            "Ondansetron (Zofran) 4 mg once IV.",
+            "Oxycodone 10 mg once PO.",
+            "Hx severe nausea: Scopolamine patch 1.5 mg apply to skin behind ear prior to procedure and leave in place x 72 hours; may cause anticholinergic side effects including dry mouth; may remove patch if these occur.",
+          ],
+        },
+        {
+          title: "If patient did not take home meds or if pre-surgical",
+          items: [
+            "Pantoprazole 40 mg PO once.",
+            "Colace 100 mg PO once.",
+            "Acetaminophen 1000 mg PO once.",
+          ],
+        },
+        {
+          title: "If pre-surgical",
+          items: [
+            "Place Foley.",
+            "No NSAIDs or dexamethasone.",
+            "Page GYN at #3030 when patient is in pre-op for consent.",
+          ],
+        },
+      ],
+    },
+    [`${id}-presurgical-v2`]: {
+      title: "If pre-surgical",
+      type: "caution",
+      summary: "Pre-surgical UFE has a separate order branch.",
+      checklist: [
+        "Place Foley.",
+        "No NSAIDs or dexamethasone.",
+        "Page GYN at #3030 when patient is in pre-op for consent.",
+      ],
+    },
+    [`${id}-intra-v2`]: {
+      title: "Intraprocedure",
+      type: "reference",
+      summary: "Future UFE technique section.",
+      children: [`${id}-troubleshooting-v2`, `${id}-red-flags-v2`],
+    },
+    [`${id}-post-v2`]: {
+      title: "Post-procedure",
+      type: "action",
+      summary: "Routine orders, access recovery, pain/nausea plan, discharge prescriptions, admission PCA pathway, and follow-up.",
+      checklistSections: [
+        {
+          title: "Routine orders",
+          items: [
+            "Regular diet.",
+            "Vital signs every 15 minutes x 4, then every 30 minutes x 2, then every 1 hour x 4, then every 4 hours; edit to match bedrest.",
+            "Toradol 30 mg IM (6 hours post 1st dose).",
+            "Tylenol 1000 mg PO (6 hours post 1st dose).",
+            "Oxycodone 5 mg tab x 1 PO q4 PRN pain.",
+            "Dilaudid 0.5-1 mg IV Q2 hrs PRN pain not responding to oral.",
+            "Antiemetic order set (ondansetron, metoclopramide, and promethazine).",
+          ],
+        },
+        {
+          title: "Anticoagulation to resume",
+          items: highRiskAnticoagRestartItems,
+        },
+        {
+          title: "Femoral access",
+          items: ["Bedrest, 2-6 hours with LE extended."],
+        },
+        {
+          title: "Radial access",
+          items: [
+            "Activity per JH-HLM mobility goal.",
+            "Remove radial artery compression device.",
+            "Monitor color of access site.",
+          ],
+        },
+        {
+          title: "If being discharged",
+          items: [
+            "Oxycodone 5 mg PO Q6 hours x 2 days scheduled then Q6 hrs PRN (Disp 24).",
+            "Optional: promethazine 25 mg Q4 hours PRN if nausea not responding to Zofran.",
+            "Discharge order 2-6 hours prior.",
+            "After visit summary: .IRAVSUFE.",
+          ],
+        },
+        {
+          title: "If patient admitted - PCA adult order",
+          items: [
+            "Hydromorphone - one hour dose limit: 1.2 mg.",
+            "Loading dose: 0 mg.",
+            "PCA dose: 0.2 mg.",
+            "Lockout interval: 10 min.",
+            "Continuous infusion rate: 0 mg/hr.",
+          ],
+        },
+      ],
+      details: {
+        "Follow up": ["Clinic visit in 1 month."],
+      },
+    },
+    [`${id}-troubleshooting-v2`]: {
+      title: "Troubleshooting",
+      type: "decision",
+      summary: "Future edit: add UFE-specific troubleshooting.",
+      details: {
+        "To build": [
+          "Difficult uterine artery selection.",
+          "Variant pelvic arterial anatomy.",
+          "Non-target embolization concern.",
+          "Severe post-embolization pain or nausea.",
+          "Access-site bleeding.",
+        ],
+      },
+    },
+    [`${id}-red-flags-v2`]: {
+      title: "Red Flags",
+      type: "caution",
+      summary: "Findings that should pause UFE or prompt escalation.",
+      details: {
+        "Escalate if": [
+          "Pregnancy not excluded.",
+          "Active infection or malignancy concern.",
+          "Patient goals do not align with procedure.",
+          "Uncorrected high-risk anticoagulation issue.",
+          "Severe uncontrolled post-procedure pain, fever/sepsis concern, access-site bleeding, or hemodynamic instability.",
+        ],
+      },
+    },
+    [`${id}-review-v2`]: {
+      title: "Needs review",
+      type: "caution",
+      summary: "Confirm medication protocol, admitting attendings, access recovery, discharge meds, PCA pathway, and follow-up workflow.",
+      details: {
+        "Review checklist": [
+          "Confirm high bleeding risk classification and hold times with local policy.",
+          "Confirm UFE pre-medication dispense quantities.",
+          "Confirm Dr. Kim dexamethasone hold language.",
+          "Confirm pre-surgical pathway and GYN #3030 workflow.",
+          "Confirm discharge timing wording and outpatient prescriptions.",
+          "Confirm PCA settings and admission criteria.",
+        ],
+      },
+    },
+  };
+}
+
 function installModerateSedationLinks() {
   const sedationLink = { text: "Can tolerate moderate sedation", href: "#moderate-sedation-checklist" };
 
@@ -5773,6 +6332,23 @@ function installRestartMedicationGuidance() {
           "Use the anticoagulation table and local policy until the procedure-specific content is reviewed.",
         ],
       };
+    });
+  });
+}
+
+function installPreProcedureLieFlatChecks() {
+  const lieFlatCheck = "Confirm sedation plan - patient can lie flat.";
+
+  procedures.forEach((procedure) => {
+    Object.values(procedure.nodes).forEach((node) => {
+      if (node.title !== "Pre-procedure") return;
+      if (JSON.stringify(node).toLowerCase().includes("patient can lie flat")) return;
+
+      if (!Array.isArray(node.checklist)) {
+        node.checklist = [];
+      }
+
+      node.checklist.push(lieFlatCheck);
     });
   });
 }

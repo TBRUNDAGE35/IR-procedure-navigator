@@ -30,6 +30,7 @@ The full raw extraction is in procedure-orders-extracted.txt.
 - Liver Biopsy/Fiducial Marker Placement
 - Lung Biopsy/Fiducial Marker Placement
 - Lung Ablation
+- Nerve Block
 - Nephrostomy Tube Placement
 - Nephrostomy to Nephroureteral Stent Conversion
 - Nephrostomy Tube Exchange
@@ -48,6 +49,7 @@ The full raw extraction is in procedure-orders-extracted.txt.
 - Transjugular Intrahepatic Portosystemic Shunt Check/Revision (TIPS)
 - Transvenous Biopsy
 - Tunneled Line Placement/Exchange
+- Uterine Artery Embolization
 - Uterine Fibroid Embolization (UFE)
 - Venogram
 - Vertebroplasty/Kyphoplasty
