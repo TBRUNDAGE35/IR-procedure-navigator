@@ -784,6 +784,8 @@ installThyroidBiopsyEdits();
 installNerveBlockPlaceholder();
 installUterineArteryEmbolizationPlaceholder();
 installUfeEdits();
+installY90MappingEdits();
+installY90TherapyEdits();
 installModerateSedationLinks();
 installRestartMedicationGuidance();
 installPreProcedureLieFlatChecks();
@@ -5564,7 +5566,7 @@ function installTipsRevisionEdits() {
           "Recurrent ascites.",
           "Elevated portosystemic gradient.",
           "Shunt dysfunction on Doppler US.",
-          "Over-correction.",
+          "Over-correction now causing heart failure, hepatic encephalopathy, or hepatic failure.",
         ],
       },
     },
@@ -5626,7 +5628,8 @@ function installTipsRevisionEdits() {
           "Consider changes depending on if upsizing or narrowing.",
         ],
         Contraindications: [
-          "Review contraindications.",
+          "Contraindications depend on revision goal.",
+          "Right heart failure.",
           "Active infection.",
         ],
       },
@@ -6238,6 +6241,408 @@ function installUfeEdits() {
           "Confirm pre-surgical pathway and GYN #3030 workflow.",
           "Confirm discharge timing wording and outpatient prescriptions.",
           "Confirm PCA settings and admission criteria.",
+        ],
+      },
+    },
+  };
+}
+
+function installY90MappingEdits() {
+  const procedure = procedures.find((item) => item.title === "Y90 Radioembolization Mapping");
+  if (!procedure) return;
+
+  const id = procedure.id;
+  procedure.bleedRisk = "High";
+  procedure.summary =
+    "Y90 mapping guidance for treatment planning before radioembolization, including hepatic arterial anatomy, lung shunt evaluation, non-target embolization risk, and dosimetry data.";
+  procedure.keywords = `${procedure.keywords || ""} y90 mapping radioembolization hepatic arterial anatomy lung shunt non-target embolization dosimetry spect ct nuclear medicine cone beam ct`;
+  procedure.root = `${id}-root-v2`;
+  procedure.nodes = {
+    [`${id}-root-v2`]: {
+      title: "Y90 Radioembolization Mapping",
+      type: "reference",
+      summary: "Review indication, labs, high-risk anticoagulation holds, sedation plan, mapping checklist, post-orders, SPECT/CT, and Y90 therapy follow-up.",
+      children: [`${id}-pre-v2`, `${id}-intra-v2`, `${id}-post-v2`, `${id}-review-v2`],
+    },
+    [`${id}-pre-v2`]: {
+      title: "Pre-procedure",
+      type: "action",
+      summary: "Confirm Y90 candidacy, hepatic arterial imaging, nuclear medicine coordination, labs, high-risk anticoagulation holds, and moderate sedation readiness.",
+      children: [
+        `${id}-indication-v2`,
+        `${id}-labs-v2`,
+        `${id}-anticoag-v2`,
+        `${id}-sedation-v2`,
+        `${id}-checklist-v2`,
+      ],
+    },
+    [`${id}-indication-v2`]: {
+      title: "Indication",
+      type: "decision",
+      summary: "Required planning before Y90 radioembolization.",
+      details: {
+        Indications: [
+          "Required planning before Y90 embolization.",
+          "Define hepatic arterial anatomy.",
+          "Evaluate for shunts to the lungs.",
+          "Evaluate non-target embolization.",
+          "Obtain data for Y90 dosimetry.",
+        ],
+      },
+    },
+    [`${id}-labs-v2`]: {
+      title: "Labs",
+      type: "decision",
+      summary: "CBC, INR, CMP, and AFP on day of arrival; platelets >50k and INR <1.5-1.8.",
+      details: {
+        Labs: [
+          "CBC on day of arrival.",
+          "INR on day of arrival.",
+          "CMP on day of arrival.",
+          "AFP on day of arrival.",
+          "Platelets >50k.",
+          "INR < 1.5-1.8.",
+        ],
+      },
+    },
+    [`${id}-anticoag-v2`]: {
+      title: "Anticoagulation",
+      type: "caution",
+      summary: "High bleeding risk; hold anticoagulants/antiplatelets per policy.",
+      details: {
+        Anticoagulation: [
+          "High bleeding risk.",
+          { text: "Open anticoagulation table", href: "#anticoagulation-table" },
+        ],
+        Hold: highRiskAnticoagHoldItems,
+      },
+    },
+    [`${id}-sedation-v2`]: {
+      title: "Sedation",
+      type: "reference",
+      summary: "Moderate sedation.",
+      details: {
+        Sedation: [
+          "Moderate sedation.",
+          { text: "Can tolerate moderate sedation", href: "#moderate-sedation-checklist" },
+        ],
+      },
+    },
+    [`${id}-checklist-v2`]: {
+      title: "Checklist",
+      type: "decision",
+      summary: "Confirm indication, candidacy, imaging, labs, nuclear medicine coordination, and cone-beam CT availability.",
+      details: {
+        Checklist: [
+          "Confirm indication and candidacy.",
+          "Review imaging for hepatic arterial anatomy.",
+          "Labs are appropriate.",
+          "Coordination with nuclear medicine.",
+          "Cone-beam CT available.",
+        ],
+      },
+    },
+    [`${id}-intra-v2`]: {
+      title: "Intraprocedure",
+      type: "reference",
+      summary: "Future Y90 mapping technique section.",
+      children: [`${id}-troubleshooting-v2`, `${id}-red-flags-v2`],
+    },
+    [`${id}-post-v2`]: {
+      title: "Post-procedure",
+      type: "action",
+      summary: "Routine orders, access recovery, anticoagulation restart, discharge, SPECT/CT, and Y90 therapy follow-up.",
+      checklistSections: [
+        {
+          title: "Routine orders",
+          items: [
+            "Regular diet.",
+            "Tylenol 650 mg PRN.",
+            "Vital signs - Every 15 minutes x 4, then every 30 minutes x 2, then every 1 hour x 4, then every 4 hours; edit to match bedrest.",
+          ],
+        },
+        {
+          title: "Femoral access",
+          items: ["Bedrest for 2 hours with leg flat."],
+        },
+        {
+          title: "Radial access",
+          items: [
+            "Activity per JH-HLM mobility goal.",
+            "Remove radial artery compression device.",
+          ],
+        },
+        {
+          title: "Anticoagulation to resume",
+          items: highRiskAnticoagRestartItems,
+        },
+        {
+          title: "Discharge / next step",
+          items: [
+            "Discharge order with medication reconciliation prior - 2-6 hours.",
+            "After visit summary: .IRAVSY90MAPPING.",
+            "Patient to be sent to SPECT/CT.",
+          ],
+        },
+      ],
+      details: {
+        "Follow up": [
+          { text: "Y90 Radioembolization Therapy", procedureId: "y90-radioembolization-therapy" },
+        ],
+      },
+    },
+    [`${id}-troubleshooting-v2`]: {
+      title: "Troubleshooting",
+      type: "decision",
+      summary: "Future edit: add Y90 mapping-specific troubleshooting.",
+      details: {
+        "To build": [
+          "Variant hepatic arterial anatomy.",
+          "Extrahepatic/non-target branches.",
+          "Unexpected lung shunt concern.",
+          "Unable to complete cone-beam CT or nuclear medicine coordination.",
+          "Access-site bleeding.",
+        ],
+      },
+    },
+    [`${id}-red-flags-v2`]: {
+      title: "Red Flags",
+      type: "caution",
+      summary: "Findings that should pause mapping or prompt escalation.",
+      details: {
+        "Escalate if": [
+          "Y90 candidacy is uncertain.",
+          "Uncorrected high-risk anticoagulation issue.",
+          "Non-target embolization risk cannot be addressed.",
+          "Nuclear medicine or SPECT/CT pathway is not available.",
+          "Access-site bleeding or hemodynamic instability.",
+        ],
+      },
+    },
+    [`${id}-review-v2`]: {
+      title: "Needs review",
+      type: "caution",
+      summary: "Confirm mapping workflow, lab timing, cone-beam CT availability, nuclear medicine handoff, SPECT/CT transport, and therapy scheduling.",
+      details: {
+        "Review checklist": [
+          "Confirm high bleeding risk classification and hold times with local policy.",
+          "Confirm whether AFP is required for all patients or HCC-specific workflow.",
+          "Confirm nuclear medicine coordination and SPECT/CT handoff.",
+          "Confirm radial/femoral recovery wording.",
+          "Confirm Y90 therapy scheduling workflow.",
+        ],
+      },
+    },
+  };
+}
+
+function installY90TherapyEdits() {
+  const procedure = procedures.find((item) => item.title === "Y90 Radioembolization Therapy");
+  if (!procedure) return;
+
+  const id = procedure.id;
+  procedure.bleedRisk = "High";
+  procedure.summary =
+    "Y90 radioembolization therapy guidance for hepatic malignancy treatment, radiation lobectomy, bridge therapy, and palliative disease control.";
+  procedure.keywords = `${procedure.keywords || ""} y90 therapy radioembolization hcc metastatic liver disease radiation lobectomy hypertrophy transplant resection palliative lung shunt sir-spheres therasphere`;
+  procedure.root = `${id}-root-v2`;
+  procedure.nodes = {
+    [`${id}-root-v2`]: {
+      title: "Y90 Radioembolization Therapy",
+      type: "reference",
+      summary: "Review indication, mapping anatomy, high-risk anticoagulation holds, labs, sedation plan, lung shunt thresholds, post-orders, and follow-up imaging/labs.",
+      children: [`${id}-pre-v2`, `${id}-intra-v2`, `${id}-post-v2`, `${id}-review-v2`],
+    },
+    [`${id}-pre-v2`]: {
+      title: "Pre-procedure",
+      type: "action",
+      summary: "Confirm treatment indication, mapping anatomy, labs, nuclear medicine scheduling, cone-beam CT availability, lung shunt limits, and moderate sedation readiness.",
+      children: [
+        `${id}-indication-v2`,
+        `${id}-labs-v2`,
+        `${id}-anticoag-v2`,
+        `${id}-sedation-v2`,
+        `${id}-checklist-v2`,
+      ],
+    },
+    [`${id}-indication-v2`]: {
+      title: "Indication",
+      type: "decision",
+      summary: "Hepatic malignancy treatment, bridge therapy, radiation lobectomy, or palliation.",
+      details: {
+        Indications: [
+          "Unresectable or recurrent HCC.",
+          "Metastatic disease to the liver.",
+          "Radiation lobectomy to treat tumor and induce contralateral hypertrophy.",
+          "Bridge to transplant/resection.",
+          "Palliative disease control.",
+        ],
+      },
+    },
+    [`${id}-labs-v2`]: {
+      title: "Labs",
+      type: "decision",
+      summary: "CBC, INR, CMP, AFP; platelets >50k and INR <1.5-1.8.",
+      details: {
+        Labs: [
+          "CBC.",
+          "INR.",
+          "CMP.",
+          "AFP.",
+          "Platelets >50k.",
+          "INR < 1.5-1.8.",
+        ],
+      },
+    },
+    [`${id}-anticoag-v2`]: {
+      title: "Anticoagulation",
+      type: "caution",
+      summary: "High bleeding risk; hold anticoagulants/antiplatelets per policy.",
+      details: {
+        Anticoagulation: [
+          "High bleeding risk.",
+          { text: "Open anticoagulation table", href: "#anticoagulation-table" },
+        ],
+        Hold: highRiskAnticoagHoldItems,
+      },
+    },
+    [`${id}-sedation-v2`]: {
+      title: "Sedation",
+      type: "reference",
+      summary: "Moderate sedation.",
+      details: {
+        Sedation: [
+          "Moderate sedation.",
+          { text: "Can tolerate moderate sedation", href: "#moderate-sedation-checklist" },
+        ],
+      },
+    },
+    [`${id}-checklist-v2`]: {
+      title: "Checklist",
+      type: "decision",
+      summary: "Confirm indication, mapping anatomy, labs, cone-beam CT, nuclear medicine scheduling, and lung shunt thresholds.",
+      checklistSections: [
+        {
+          title: "Core checklist",
+          items: [
+            "Confirm indication.",
+            "Review anatomy from Y90 mapping study.",
+            "Labs are appropriate.",
+            "CT cone beam available.",
+            "Nuclear medicine aware and scheduled.",
+          ],
+        },
+        {
+          title: "Lung shunt fraction from Tc-99m mapping scan",
+          items: [
+            "< 10% - acceptable.",
+            "10-20% - elevated; calculate predicted lung dose and potentially reduce Y90 activity.",
+            "> 20% - contraindication for SIR-Sphere resin microspheres.",
+          ],
+        },
+        {
+          title: "TheraSphere glass microspheres",
+          items: [
+            "No percentage cutoff for TheraSphere glass microspheres; lung dose is the metric.",
+            "< 30 Gy per treatment.",
+            "< 50 Gy cumulative.",
+          ],
+        },
+      ],
+    },
+    [`${id}-intra-v2`]: {
+      title: "Intraprocedure",
+      type: "reference",
+      summary: "Future Y90 therapy technique section.",
+      children: [`${id}-troubleshooting-v2`, `${id}-red-flags-v2`],
+    },
+    [`${id}-post-v2`]: {
+      title: "Post-procedure",
+      type: "action",
+      summary: "Routine orders, access recovery, anticoagulation restart, discharge, AVS, and one-month follow-up.",
+      checklistSections: [
+        {
+          title: "Routine orders",
+          items: [
+            "Regular diet.",
+            "Tylenol 650 mg PRN.",
+            "Vital signs - Every 15 minutes x 4, then every 30 minutes x 2, then every 1 hour x 4, then every 4 hours; edit to match bedrest.",
+          ],
+        },
+        {
+          title: "Femoral access",
+          items: [
+            "Bedrest for 2 hours with leg flat.",
+            "Monitor color of access site.",
+          ],
+        },
+        {
+          title: "Radial access",
+          items: [
+            "Activity per JH-HLM mobility goal.",
+            "Monitor color of access site.",
+            "Remove radial artery compression device.",
+          ],
+        },
+        {
+          title: "Anticoagulation to resume",
+          items: highRiskAnticoagRestartItems,
+        },
+        {
+          title: "Discharge",
+          items: [
+            "Discharge order with medication reconciliation prior - 2-6 hours.",
+            "After visit summary: .IRAVSY901.",
+          ],
+        },
+        {
+          title: "Follow up",
+          items: [
+            "Clinic visit in 1 month with MRI liver mass and labs: CBC, INR, CMP, AFP.",
+          ],
+        },
+      ],
+    },
+    [`${id}-troubleshooting-v2`]: {
+      title: "Troubleshooting",
+      type: "decision",
+      summary: "Future edit: add Y90 therapy-specific troubleshooting.",
+      details: {
+        "To build": [
+          "Variant hepatic arterial anatomy from mapping study.",
+          "Unexpected non-target flow.",
+          "Activity/dose delivery issue.",
+          "Cone-beam CT or nuclear medicine coordination issue.",
+          "Access-site bleeding.",
+        ],
+      },
+    },
+    [`${id}-red-flags-v2`]: {
+      title: "Red Flags",
+      type: "caution",
+      summary: "Findings that should pause therapy or prompt escalation.",
+      details: {
+        "Escalate if": [
+          "Treatment indication or target anatomy is uncertain.",
+          "Uncorrected high-risk anticoagulation issue.",
+          "Lung shunt/lung dose exceeds acceptable threshold.",
+          "Nuclear medicine schedule or Y90 activity is not confirmed.",
+          "Access-site bleeding or hemodynamic instability.",
+        ],
+      },
+    },
+    [`${id}-review-v2`]: {
+      title: "Needs review",
+      type: "caution",
+      summary: "Confirm activity/dosimetry workflow, lung dose thresholds, nuclear medicine handoff, recovery orders, AVS phrase, and follow-up imaging/lab timing.",
+      details: {
+        "Review checklist": [
+          "Confirm local Y90 activity and dosimetry workflow.",
+          "Confirm SIR-Sphere and TheraSphere lung shunt/lung dose policy.",
+          "Confirm nuclear medicine handoff and scheduling workflow.",
+          "Confirm radial/femoral recovery wording.",
+          "Confirm .IRAVSY901 after visit summary phrase.",
+          "Confirm one-month MRI liver mass and lab workflow.",
         ],
       },
     },
