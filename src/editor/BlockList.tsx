@@ -67,9 +67,10 @@ export function BlockList({
     const key = pendingFocus.current;
     if (key === null) return;
     pendingFocus.current = null;
-    const target = rootRef.current?.querySelector<HTMLElement>(
-      `:scope > [data-block-key="${key}"] [contenteditable="true"]`,
-    );
+    const block = rootRef.current?.querySelector<HTMLElement>(`:scope > [data-block-key="${key}"]`);
+    // A new box should put the caret in its body, not its optional title.
+    const scope = block?.querySelector<HTMLElement>("[data-focus-first]") ?? block;
+    const target = scope?.querySelector<HTMLElement>('[contenteditable="true"]');
     target?.focus({ preventScroll: true });
     target?.scrollIntoView({ block: "nearest" });
   });
@@ -345,7 +346,7 @@ function CalloutEditor({ block, onChange }: { block: CalloutBlock; onChange: (bl
         </span>
         {block.collapsible && <span className={styles.badge}>Collapsed until clicked</span>}
       </div>
-      <div className={blockStyles.calloutBody}>
+      <div className={blockStyles.calloutBody} data-focus-first>
         <BlockList blocks={block.blocks} onChange={(blocks) => onChange({ ...block, blocks })} />
       </div>
     </aside>

@@ -59,6 +59,13 @@ export async function loadArticle(id: string): Promise<LoadedArticle | { error: 
       | { ok?: boolean; article?: unknown; sha?: string; images?: string[]; error?: string }
       | null;
     if (response.status === 404) return { error: "That procedure does not exist.", missing: true };
+    // A Worker deployed before the editor existed only knows POST.
+    if (response.status === 405) {
+      return {
+        error:
+          "The publishing service has not been updated for the editor yet. The site owner needs to redeploy the Worker (npm run worker:deploy).",
+      };
+    }
     if (!response.ok || !data?.ok || typeof data.sha !== "string") {
       return { error: data?.error ?? UNREACHABLE };
     }

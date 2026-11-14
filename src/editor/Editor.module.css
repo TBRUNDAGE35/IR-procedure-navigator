@@ -107,6 +107,8 @@
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   transition: background 100ms ease;
+  /* Keep a field that scrolls into view clear of the header and the publish bar. */
+  scroll-margin-block: calc(var(--header-height) + var(--sp-4)) 7rem;
 }
 
 .inline:hover {
@@ -353,11 +355,19 @@
   color: var(--c-brand-strong);
 }
 
+/* Enter already adds bullets, so this stays out of the way until the list is in use. */
 .addRow {
   align-self: flex-start;
   margin-left: var(--sp-4);
   border-color: transparent;
   color: var(--c-ink-faint);
+  opacity: 0;
+  transition: opacity 100ms ease;
+}
+
+.listBlock:hover > .addRow,
+.listBlock:focus-within > .addRow {
+  opacity: 1;
 }
 
 .addTopic {
@@ -811,6 +821,24 @@
   .row[data-level="1"] {
     margin-left: var(--sp-4);
   }
+
+  /* Give the text the full width; the row's controls drop underneath it. */
+  .row {
+    flex-wrap: wrap;
+  }
+
+  .row > .inlineWrap {
+    flex-basis: 100%;
+  }
+
+  .rowTools {
+    margin-left: auto;
+  }
+
+  /* The site header is taller and sticky at this width. */
+  .inline {
+    scroll-margin-block: 11rem 9rem;
+  }
 }
 
 /* No hover on touch screens: keep controls for the row being edited visible. */
@@ -821,5 +849,9 @@
 
   .row:not(:focus-within) > .rowTools {
     display: none;
+  }
+
+  .addRow {
+    opacity: 1;
   }
 }

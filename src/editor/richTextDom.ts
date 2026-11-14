@@ -7,8 +7,8 @@
  * browser's editing commands leave behind (spans, <br>, nested tags). Anything
  * the schema cannot express is flattened to plain text rather than rejected.
  */
-import { isInternalLink } from "@/schema/article";
-import type { ExternalLink, InlinePart, InternalLink, RichText } from "@/schema/article";
+import { isInternalLink } from "../schema/article.ts";
+import type { ExternalLink, InlinePart, InternalLink, RichText } from "../schema/article.ts";
 
 type Link = InternalLink | ExternalLink;
 
@@ -99,11 +99,20 @@ function mergeParts(parts: readonly InlinePart[]): InlinePart[] {
       if (typeof previous === "object" && "strong" in previous) {
         merged[merged.length - 1] = { strong: previous.strong + part.strong };
       } else merged.push(part);
+    } else if (typeof previous === "object" && "link" in previous && sameTarget(previous.link, part.link)) {
+      // Two halves of one link (split by Enter, rejoined by Backspace) are one link.
+      merged[merged.length - 1] = { link: { ...previous.link, text: previous.link.text + part.link.text } };
     } else {
       merged.push(part);
     }
   }
   return merged;
+}
+
+function sameTarget(a: Link, b: Link): boolean {
+  const { text: _a, ...targetA } = a;
+  const { text: _b, ...targetB } = b;
+  return JSON.stringify(targetA) === JSON.stringify(targetB);
 }
 
 function fromParts(parts: readonly InlinePart[]): RichText {

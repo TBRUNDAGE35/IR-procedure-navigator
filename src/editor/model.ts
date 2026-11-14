@@ -4,11 +4,14 @@
  *
  * Objects are built with keys in schema order so freshly added content
  * serialises the same way the existing files do.
+ *
+ * Relative `.ts` imports (here and in richTextDom.ts) so Node can run this file
+ * directly for the unit tests in tests/editor-model.test.mjs.
  */
-import { articleSchema, CALLOUT_VARIANTS } from "@/schema/article";
-import type { Article, Block, CalloutVariant, RichText, Section, Subsection } from "@/schema/article";
-import { validateArticle } from "@/schema/validate";
-import { isEmptyRichText } from "./richTextDom";
+import { articleSchema, CALLOUT_VARIANTS } from "../schema/article.ts";
+import type { Article, Block, CalloutVariant, RichText, Section, Subsection } from "../schema/article.ts";
+import { validateArticle } from "../schema/validate.ts";
+import { isEmptyRichText } from "./richTextDom.ts";
 
 export function slugify(text: string): string {
   return text
@@ -186,9 +189,11 @@ function tidyBlock(block: Block): Block | null {
     }
     case "callout": {
       const blocks = tidyBlocks(block.blocks);
-      const blankTitle = block.title !== undefined && block.title.trim() === "";
-      if (blocks === block.blocks && !blankTitle) return block;
-      if (blocks.length === 0) return null;
+      const blankTitle = block.title === undefined || block.title.trim() === "";
+      // Only a box with nothing in it at all goes. One that has a title but no
+      // body is kept as it appears on screen: dropping it would lose words.
+      if (blocks.length === 0 && blankTitle) return null;
+      if (blocks === block.blocks && (block.title === undefined || !blankTitle)) return block;
       const next = { ...block, blocks };
       return blankTitle ? withoutKey(next, "title") : next;
     }
